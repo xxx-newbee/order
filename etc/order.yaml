@@ -1,0 +1,37 @@
+Name: order.rpc
+ListenOn: 0.0.0.0:8081
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: order.rpc
+
+Database:
+  DataSource: "host=127.0.0.1 user=huangjg password=huangjg@1001 dbname=go-micro port=5432 sslmode=disable"
+  MaxOpenConns: 100
+  MaxIdleConns: 20
+  ConnMaxLifetime: 3600
+
+# 缓存配置
+Cache:
+  Redis:
+    Addr: 0.0.0.0:6379
+    Password: ""
+    DB: 0
+  Memory: ""
+
+Locker:
+  Redis:
+    Addr: 0.0.0.0:6379
+    Password: ""
+    DB: 1
+
+# 消息队列配置
+Queue:
+  Memory:
+    PoolSize: 1000
+  Redis:
+    Addr: 0.0.0.0:6379
+    Password: ""
+    DB: 2
+    Prefix: "order"
+    MaxRetry: 3

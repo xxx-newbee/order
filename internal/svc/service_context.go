@@ -2,9 +2,10 @@ package svc
 
 import (
 	"context"
-	"order/internal/config"
-	"order/internal/model"
 	"time"
+
+	"github.com/xxx-newbee/order/internal/config"
+	"github.com/xxx-newbee/order/internal/model"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/xxx-newbee/storage"
@@ -78,19 +79,6 @@ func InitRedis(c config.Config) *redis.Client {
 	}
 	return client
 }
-
-//func InitRedis(c config.Config) storage.AdapterCache {
-//	newRedis, err := cache.NewRedis(nil, redis.Options{
-//		Addr:     c.Cache.Redis.Addr,
-//		Password: c.Cache.Redis.Password,
-//		DB:       c.Cache.Redis.DB,
-//	})
-//	if err != nil {
-//		panic("failed to init redis: " + err.Error())
-//	}
-//
-//	return newRedis
-//}
 
 func InitRedisQueue(c config.Config) storage.AdapterQueue {
 	client := redis.NewClient(&redis.Options{

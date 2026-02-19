@@ -3,7 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"order/cmd/api"
+	"github.com/xxx-newbee/order/cmd/api"
 
 	"github.com/spf13/cobra"
 )

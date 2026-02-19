@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
-	"order/internal/logic"
-	"order/internal/svc"
-	"order/order"
+	"github.com/xxx-newbee/order/internal/logic"
+	"github.com/xxx-newbee/order/internal/svc"
+	"github.com/xxx-newbee/order/order"
 )
 
 type OrderServer struct {

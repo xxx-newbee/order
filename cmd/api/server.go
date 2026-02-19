@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
-	"order/internal/config"
-	"order/internal/server"
-	"order/internal/svc"
-	"order/order"
+	"github.com/xxx-newbee/order/internal/config"
+	"github.com/xxx-newbee/order/internal/server"
+	"github.com/xxx-newbee/order/internal/svc"
+	"github.com/xxx-newbee/order/order"
 
 	"github.com/spf13/cobra"
 	"github.com/zeromicro/go-zero/core/conf"

@@ -1,8 +1,9 @@
 package migrate
 
 import (
-	"order/internal/config"
-	"order/internal/svc"
+	"github.com/xxx-newbee/order/internal/config"
+	"github.com/xxx-newbee/order/internal/model"
+	"github.com/xxx-newbee/order/internal/svc"
 
 	"github.com/spf13/cobra"
 	"github.com/zeromicro/go-zero/core/conf"
@@ -28,5 +29,6 @@ func init() {
 func run() error {
 	conf.MustLoad(configY, &config.C)
 	db := svc.InitDB(config.C)
-	db.AutoMigrate()
+	err := db.AutoMigrate(model.OrderMain{}, model.OrderItem{}, model.SeckillStock{})
+	return err
 }

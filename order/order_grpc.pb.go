@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Order_SeckillOrder_FullMethodName = "/order.Order/SeckillOrder"
+	Order_SeckillOrder_FullMethodName = "/order.github.com/xxx-newbee/order/SeckillOrder"
 )
 
 // OrderClient is the client API for Order service.

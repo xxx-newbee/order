@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"order/internal/model"
+	"github.com/xxx-newbee/order/internal/model"
 	"strconv"
 
-	"order/internal/svc"
-	"order/order"
+	"github.com/xxx-newbee/order/internal/svc"
+	"github.com/xxx-newbee/order/order"
 
 	"github.com/bsm/redislock"
 	"github.com/zeromicro/go-zero/core/logx"

@@ -1,6 +1,6 @@
 module github.com/xxx-newbee/order
 
-go 1.25.5
+go 1.26.0
 
 require (
 	github.com/bsm/redislock v0.9.4
@@ -12,6 +12,11 @@ require (
 	google.golang.org/protobuf v1.36.11
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
+)
+
+// for dev
+replace (
+	github.com/xxx-newbee/storage v1.0.4 => ../storage
 )
 
 require (

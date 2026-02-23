@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/xxx-newbee/order/internal/config"
 	"github.com/xxx-newbee/order/internal/server"
 	"github.com/xxx-newbee/order/internal/svc"
@@ -39,16 +40,20 @@ func setup() {
 }
 
 func run() {
-	ctx := svc.NewServiceContext(config.C)
+	sctx := svc.NewServiceContext(config.C)
 
 	s := zrpc.MustNewServer(config.C.RpcServerConf, func(grpcServer *grpc.Server) {
-		order.RegisterOrderServer(grpcServer, server.NewOrderServer(ctx))
+		order.RegisterOrderServer(grpcServer, server.NewOrderServer(sctx))
 
 		if config.C.Mode == service.DevMode || config.C.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
-	defer s.Stop()
+	defer func() {
+		s.Stop()
+		sctx.MemoryQueue.Shutdown()
+		sctx.RedisQueue.Shutdown()
+	}()
 
 	fmt.Printf("Starting rpc server at %s...\n", config.C.ListenOn)
 	s.Start()

@@ -29,7 +29,7 @@ type (
 	}
 )
 
-func (s *SeckillStock) TableName() string { return "order_seckill_stock" }
+func (SeckillStock) TableName() string { return "order_seckill_stock" }
 
 func NewSeckillStockModel(db *gorm.DB) SeckillStockModel {
 	return &defaultSeckillStock{

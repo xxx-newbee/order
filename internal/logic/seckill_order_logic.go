@@ -66,15 +66,21 @@ func (l *SeckillOrderLogic) SeckillOrder(in *order.SeckillOrderRequest) (*order.
 	defer func() {
 		if err := lock.Release(context.TODO()); err != nil {
 			if errors.Is(err, redislock.ErrLockNotHeld) {
-				l.Logger.Errorf("release lock err: %s", err.Error())
+				l.Logger.Errorf("释放分布式锁失败: %s", err.Error())
 			} else {
-				l.Logger.Infof("release lock: %s", lockerKey)
+				l.Logger.Infof("释放分布式锁: %s", lockerKey)
 			}
 		}
 	}()
 
-	// 4.生成订单 todo: 雪花算法
-	orderNo := strconv.FormatInt(int64(33), 10)
+	// 4.生成订单
+	orderKey := fmt.Sprintf("seckill:order:%d", in.ActivityId)
+	order_no, err := l.svcCtx.Cache.Increase(orderKey)
+	if err != nil {
+		l.Logger.Errorf("生成订单号失败: %s", err.Error())
+		return &order.SeckillOrderResponse{Success: false, Msg: "生成订单号失败"}, nil
+	}
+	orderNo := strconv.FormatInt(order_no, 10)
 	order_main := &model.OrderMain{
 		OrderNo:           orderNo,
 		UserId:            in.UserId,
@@ -86,7 +92,7 @@ func (l *SeckillOrderLogic) SeckillOrder(in *order.SeckillOrderRequest) (*order.
 	}
 	if err = l.svcCtx.OrderMainModel.Insert(order_main); err != nil {
 		_, _ = l.svcCtx.Cache.Increase(stockKey)
-		l.Logger.Errorf("order insert err: %s", err.Error())
+		l.Logger.Errorf("创建订单失败: %s", err.Error())
 		return &order.SeckillOrderResponse{Success: false, Msg: "创建订单失败"}, nil
 	}
 
@@ -103,7 +109,7 @@ func (l *SeckillOrderLogic) SeckillOrder(in *order.SeckillOrderRequest) (*order.
 	}
 	if err = l.svcCtx.RedisQueue.Append(msg); err != nil {
 		_, _ = l.svcCtx.Cache.Increase(stockKey)
-		l.Logger.Errorf("queue append message error: %s", err.Error())
+		l.Logger.Errorf("消息入队失败: %s", err.Error())
 		return &order.SeckillOrderResponse{Success: false, Msg: "数据库异步扣减失败"}, nil
 	}
 
@@ -139,5 +145,6 @@ func (l *SeckillOrderLogic) SeckillStockConsumer(msg storage.Messager) error {
 		return err
 	}
 	// 扣减成功，更新订单为待付款状态
+	l.Logger.Infof("秒杀库存扣减成功，orderNo：", order.OrderNo)
 	return l.svcCtx.OrderMainModel.UpdataStatus(order.OrderNo, 0)
 }

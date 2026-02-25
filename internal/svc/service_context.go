@@ -4,10 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/xxx-newbee/order/internal/config"
 	"github.com/xxx-newbee/order/internal/model"
-
-	"github.com/redis/go-redis/v9"
 	"github.com/xxx-newbee/storage"
 	"github.com/xxx-newbee/storage/cache"
 	"github.com/xxx-newbee/storage/locker"
@@ -25,6 +24,7 @@ type ServiceContext struct {
 	OrderMainModel    model.OrderMainModel
 	OrderItemModel    model.OrderItemModel
 	SeckillStockModel model.SeckillStockModel
+	SeckillActivity   model.SeckillActivityModel
 	// TODO: 雪花算法创建订单号？？？
 
 }
@@ -42,6 +42,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OrderMainModel:    model.NewOrderMainModel(db),
 		OrderItemModel:    model.NewOrderItemModel(db),
 		SeckillStockModel: model.NewSeckillStockModel(db),
+		SeckillActivity:   model.NewSeckillActivityModel(db),
 	}
 }
 

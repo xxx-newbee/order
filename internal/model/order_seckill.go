@@ -43,7 +43,7 @@ func (m *defaultSeckillStock) FindByActivityId(activityId int64) (*SeckillStock,
 	res := m.db.Table(m.table).Where("activity_id = ?", activityId).First(&data)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return &SeckillStock{}, nil
 		}
 		return nil, res.Error
 	}
@@ -62,7 +62,12 @@ func (m *defaultSeckillStock) DecreaseStock(activityId int64) (int64, error) {
 	}
 
 	// 2.乐观锁更新
-	res := m.db.Table(m.table).Update("surplus_stock", stock.SurplusStock-1).Update("version", stock.Version+1).Update("update_time", time.Now()).Where("activity_id = ? AND version = ? AND surplus_stock > 0", activityId, stock.Version)
+	version := stock.Version
+	stock.SurplusStock -= 1
+	stock.Version += 1
+	stock.UpdateTime = time.Now()
+	res := m.db.Table(m.table).Where("activity_id = ? AND version = ?", activityId, version).Save(&stock)
+	//res := m.db.Table(m.table).Update("surplus_stock", stock.SurplusStock-1).Update("version", stock.Version+1).Update("update_time", time.Now()).Where("activity_id = ? AND version = ? AND surplus_stock > 0", activityId, stock.Version)
 	return res.RowsAffected, res.Error
 }
 

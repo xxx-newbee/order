@@ -14,8 +14,8 @@ type (
 		UserId            int64     `db:"user_id"`             // 用户ID
 		TotalAmount       float64   `db:"total_amount"`        // 订单总金额
 		PayAmount         float64   `db:"pay_amount"`          // 实付金额
-		OrderStatus       int8      `db:"order_status"`        // 订单状态
-		OrderType         int8      `db:"order_type"`          // 订单类型
+		OrderStatus       int8      `db:"order_status"`        // 订单状态 0-待支付 1-已付款 2-已发货 3-已完成 4-取消状态 5-秒杀中
+		OrderType         int8      `db:"order_type"`          // 订单类型 0-普通订单 1-秒杀订单
 		SeckillActivityId int64     `db:"seckill_activity_id"` // 秒杀活动ID
 		PayTime           time.Time `db:"pay_time"`            // 支付时间
 	}
@@ -54,7 +54,7 @@ func (m *defaultOrderMain) FindById(id int64) (*OrderMain, error) {
 	res := m.db.Table(m.table).Where("id = ?", id).First(&data)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return &OrderMain{}, nil
 		}
 		return nil, res.Error
 	}

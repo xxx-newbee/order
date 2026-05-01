@@ -18,4 +18,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           binary_name: "order-srv"
           project_path: "."
-          go_version: "1.25.5"
+          go_version: "1.26.0"

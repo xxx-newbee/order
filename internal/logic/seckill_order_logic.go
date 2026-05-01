@@ -2,18 +2,14 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-
-	"github.com/xxx-newbee/order/internal/model"
-	"github.com/xxx-newbee/storage"
-	"github.com/xxx-newbee/storage/queue"
-
 	"strconv"
 
+	"github.com/xxx-newbee/order/internal/model"
 	"github.com/xxx-newbee/order/internal/svc"
 	"github.com/xxx-newbee/order/order"
+	"github.com/xxx-newbee/storage/queue"
 
 	"github.com/bsm/redislock"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -26,14 +22,11 @@ type SeckillOrderLogic struct {
 }
 
 func NewSeckillOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SeckillOrderLogic {
-	l := &SeckillOrderLogic{
+	return &SeckillOrderLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
-	l.svcCtx.RedisQueue.Register(model.SeckillStock{}.TableName(), l.SeckillStockConsumer)
-	l.svcCtx.RedisQueue.Run()
-	return l
 }
 
 func (l *SeckillOrderLogic) SeckillOrder(in *order.SeckillOrderRequest) (*order.SeckillOrderResponse, error) {
@@ -118,33 +111,4 @@ func (l *SeckillOrderLogic) SeckillOrder(in *order.SeckillOrderRequest) (*order.
 		OrderNo: orderNo,
 		Msg:     "秒杀下单成功，请尽快支付",
 	}, nil
-}
-
-func (l *SeckillOrderLogic) SeckillStockConsumer(msg storage.Messager) error {
-	order := struct {
-		UserId     int64  `redis:"user_id"`
-		OrderNo    string `json:"order_no"`
-		ActivityId int64  `redis:"activity_id"`
-		ProductId  int64  `redis:"product_id"`
-	}{}
-	rb, err := json.Marshal(msg.GetValues())
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(rb, &order); err != nil {
-		return err
-	}
-
-	// 乐观锁扣减库存
-	affected, err := l.svcCtx.SeckillStockModel.DecreaseStock(order.ActivityId)
-	if err != nil || affected == 0 {
-		// 扣减失败，更新订单为取消状态
-		l.Logger.Errorf("数据库库存扣减失败，error: %s", err.Error())
-		_ = l.svcCtx.OrderMainModel.UpdataStatus(order.OrderNo, 4)
-		return err
-	}
-	// 扣减成功，更新订单为待付款状态
-	l.Logger.Infof("秒杀库存扣减成功，orderNo：", order.OrderNo)
-	return l.svcCtx.OrderMainModel.UpdataStatus(order.OrderNo, 0)
 }

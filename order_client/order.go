@@ -14,11 +14,29 @@ import (
 )
 
 type (
-	SeckillOrderRequest  = order.SeckillOrderRequest
-	SeckillOrderResponse = order.SeckillOrderResponse
+	SeckillOrderRequest          = order.SeckillOrderRequest
+	SeckillOrderResponse         = order.SeckillOrderResponse
+	CreateSeckillActivityRequest  = order.CreateSeckillActivityRequest
+	CreateSeckillActivityResponse = order.CreateSeckillActivityResponse
+	GetSeckillActivityRequest     = order.GetSeckillActivityRequest
+	GetSeckillActivityResponse    = order.GetSeckillActivityResponse
+	LoadSeckillStockRequest       = order.LoadSeckillStockRequest
+	LoadSeckillStockResponse      = order.LoadSeckillStockResponse
+	GetSeckillOrderRequest        = order.GetSeckillOrderRequest
+	GetSeckillOrderResponse       = order.GetSeckillOrderResponse
+	GetUserSeckillOrdersRequest   = order.GetUserSeckillOrdersRequest
+	GetUserSeckillOrdersResponse  = order.GetUserSeckillOrdersResponse
+	CancelTimeoutOrderRequest     = order.CancelTimeoutOrderRequest
+	CancelTimeoutOrderResponse    = order.CancelTimeoutOrderResponse
 
 	Order interface {
 		SeckillOrder(ctx context.Context, in *SeckillOrderRequest, opts ...grpc.CallOption) (*SeckillOrderResponse, error)
+		CreateSeckillActivity(ctx context.Context, in *CreateSeckillActivityRequest, opts ...grpc.CallOption) (*CreateSeckillActivityResponse, error)
+		GetSeckillActivity(ctx context.Context, in *GetSeckillActivityRequest, opts ...grpc.CallOption) (*GetSeckillActivityResponse, error)
+		LoadSeckillStock(ctx context.Context, in *LoadSeckillStockRequest, opts ...grpc.CallOption) (*LoadSeckillStockResponse, error)
+		GetSeckillOrder(ctx context.Context, in *GetSeckillOrderRequest, opts ...grpc.CallOption) (*GetSeckillOrderResponse, error)
+		GetUserSeckillOrders(ctx context.Context, in *GetUserSeckillOrdersRequest, opts ...grpc.CallOption) (*GetUserSeckillOrdersResponse, error)
+		CancelTimeoutOrder(ctx context.Context, in *CancelTimeoutOrderRequest, opts ...grpc.CallOption) (*CancelTimeoutOrderResponse, error)
 	}
 
 	defaultOrder struct {
@@ -35,4 +53,34 @@ func NewOrder(cli zrpc.Client) Order {
 func (m *defaultOrder) SeckillOrder(ctx context.Context, in *SeckillOrderRequest, opts ...grpc.CallOption) (*SeckillOrderResponse, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.SeckillOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) CreateSeckillActivity(ctx context.Context, in *CreateSeckillActivityRequest, opts ...grpc.CallOption) (*CreateSeckillActivityResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CreateSeckillActivity(ctx, in, opts...)
+}
+
+func (m *defaultOrder) GetSeckillActivity(ctx context.Context, in *GetSeckillActivityRequest, opts ...grpc.CallOption) (*GetSeckillActivityResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.GetSeckillActivity(ctx, in, opts...)
+}
+
+func (m *defaultOrder) LoadSeckillStock(ctx context.Context, in *LoadSeckillStockRequest, opts ...grpc.CallOption) (*LoadSeckillStockResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.LoadSeckillStock(ctx, in, opts...)
+}
+
+func (m *defaultOrder) GetSeckillOrder(ctx context.Context, in *GetSeckillOrderRequest, opts ...grpc.CallOption) (*GetSeckillOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.GetSeckillOrder(ctx, in, opts...)
+}
+
+func (m *defaultOrder) GetUserSeckillOrders(ctx context.Context, in *GetUserSeckillOrdersRequest, opts ...grpc.CallOption) (*GetUserSeckillOrdersResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.GetUserSeckillOrders(ctx, in, opts...)
+}
+
+func (m *defaultOrder) CancelTimeoutOrder(ctx context.Context, in *CancelTimeoutOrderRequest, opts ...grpc.CallOption) (*CancelTimeoutOrderResponse, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.CancelTimeoutOrder(ctx, in, opts...)
 }

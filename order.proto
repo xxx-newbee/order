@@ -3,6 +3,7 @@ syntax = "proto3";
 package order;
 option go_package="./order";
 
+// ---- 秒杀下单 ----
 message SeckillOrderRequest {
   int64 user_id = 1;
   int64 activity_id = 2;
@@ -15,6 +16,107 @@ message SeckillOrderResponse {
   string msg = 3;
 }
 
+// ---- 创建秒杀活动 ----
+message CreateSeckillActivityRequest {
+  int64 product_id = 1;
+  double seckill_price = 2;
+  int32 stock_num = 3;
+  int64 start_time = 4;   // unix timestamp
+  int64 end_time = 5;     // unix timestamp
+}
+
+message CreateSeckillActivityResponse {
+  uint32 activity_id = 1;
+  bool success = 2;
+  string msg = 3;
+}
+
+// ---- 查询秒杀活动 ----
+message GetSeckillActivityRequest {
+  uint32 activity_id = 1;
+}
+
+message GetSeckillActivityResponse {
+  uint32 activity_id = 1;
+  int64 product_id = 2;
+  double seckill_price = 3;
+  int32 stock_num = 4;
+  int32 surplus_stock = 5;
+  int64 start_time = 6;
+  int64 end_time = 7;
+  int32 status = 8;
+  bool success = 9;
+  string msg = 10;
+}
+
+// ---- 预热库存到Redis ----
+message LoadSeckillStockRequest {
+  uint32 activity_id = 1;
+}
+
+message LoadSeckillStockResponse {
+  bool success = 1;
+  string msg = 2;
+}
+
+// ---- 查询秒杀订单 ----
+message GetSeckillOrderRequest {
+  string order_no = 1;
+}
+
+message GetSeckillOrderResponse {
+  string order_no = 1;
+  int64 user_id = 2;
+  double total_amount = 3;
+  double pay_amount = 4;
+  int32 order_status = 5;
+  int32 order_type = 6;
+  int64 seckill_activity_id = 7;
+  string created_at = 8;
+  bool success = 9;
+  string msg = 10;
+}
+
+// ---- 用户秒杀订单列表 ----
+message GetUserSeckillOrdersRequest {
+  int64 user_id = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message SeckillOrderInfo {
+  string order_no = 1;
+  int64 user_id = 2;
+  double total_amount = 3;
+  double pay_amount = 4;
+  int32 order_status = 5;
+  int64 seckill_activity_id = 6;
+  string created_at = 7;
+}
+
+message GetUserSeckillOrdersResponse {
+  repeated SeckillOrderInfo orders = 1;
+  int64 total = 2;
+  bool success = 3;
+  string msg = 4;
+}
+
+// ---- 取消超时订单 ----
+message CancelTimeoutOrderRequest {
+  string order_no = 1;
+}
+
+message CancelTimeoutOrderResponse {
+  bool success = 1;
+  string msg = 2;
+}
+
 service Order {
   rpc SeckillOrder(SeckillOrderRequest) returns(SeckillOrderResponse);
+  rpc CreateSeckillActivity(CreateSeckillActivityRequest) returns(CreateSeckillActivityResponse);
+  rpc GetSeckillActivity(GetSeckillActivityRequest) returns(GetSeckillActivityResponse);
+  rpc LoadSeckillStock(LoadSeckillStockRequest) returns(LoadSeckillStockResponse);
+  rpc GetSeckillOrder(GetSeckillOrderRequest) returns(GetSeckillOrderResponse);
+  rpc GetUserSeckillOrders(GetUserSeckillOrdersRequest) returns(GetUserSeckillOrdersResponse);
+  rpc CancelTimeoutOrder(CancelTimeoutOrderRequest) returns(CancelTimeoutOrderResponse);
 }

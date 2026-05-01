@@ -29,6 +29,6 @@ func init() {
 func run() error {
 	conf.MustLoad(configY, &config.C)
 	db := svc.InitDB(config.C)
-	err := db.AutoMigrate(model.OrderMain{}, model.OrderItem{}, model.SeckillStock{})
+	err := db.AutoMigrate(model.OrderMain{}, model.OrderItem{}, model.SeckillStock{}, model.SeckillActivity{})
 	return err
 }

@@ -20,6 +20,7 @@ type (
 	SeckillStockModel interface {
 		FindByActivityId(activityId int64) (*SeckillStock, error)
 		DecreaseStock(activityId int64) (int64, error)
+		IncreaseStock(activityId int64) (int64, error)
 		Update(data *SeckillStock) error
 	}
 
@@ -68,6 +69,24 @@ func (m *defaultSeckillStock) DecreaseStock(activityId int64) (int64, error) {
 	stock.UpdateTime = time.Now()
 	res := m.db.Table(m.table).Where("activity_id = ? AND version = ?", activityId, version).Save(&stock)
 	//res := m.db.Table(m.table).Update("surplus_stock", stock.SurplusStock-1).Update("version", stock.Version+1).Update("update_time", time.Now()).Where("activity_id = ? AND version = ? AND surplus_stock > 0", activityId, stock.Version)
+	return res.RowsAffected, res.Error
+}
+
+// 乐观锁回滚库存（取消订单时）
+func (m *defaultSeckillStock) IncreaseStock(activityId int64) (int64, error) {
+	stock, err := m.FindByActivityId(activityId)
+	if err != nil {
+		return 0, err
+	}
+	if stock == nil {
+		return 0, errors.New("库存记录不存在")
+	}
+
+	version := stock.Version
+	stock.SurplusStock += 1
+	stock.Version += 1
+	stock.UpdateTime = time.Now()
+	res := m.db.Table(m.table).Where("activity_id = ? AND version = ?", activityId, version).Save(&stock)
 	return res.RowsAffected, res.Error
 }
 

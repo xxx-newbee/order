@@ -2,6 +2,7 @@ package svc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -11,6 +12,7 @@ import (
 	"github.com/xxx-newbee/storage/cache"
 	"github.com/xxx-newbee/storage/locker"
 	"github.com/xxx-newbee/storage/queue"
+	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,25 +27,30 @@ type ServiceContext struct {
 	OrderItemModel    model.OrderItemModel
 	SeckillStockModel model.SeckillStockModel
 	SeckillActivity   model.SeckillActivityModel
-	// TODO: 雪花算法创建订单号？？？
-
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	db := InitDB(c)
 	redis := InitRedis(c)
+	redisQueue := InitRedisQueue(c)
 
-	return &ServiceContext{
+	svcCtx := &ServiceContext{
 		Config:            c,
 		Cache:             cache.NewRedis(redis, nil),
 		Locker:            locker.NewRedisLocker(redis),
 		MemoryQueue:       queue.NewMemoryQueue(c.Queue.Memory.PoolSize),
-		RedisQueue:        InitRedisQueue(c),
+		RedisQueue:        redisQueue,
 		OrderMainModel:    model.NewOrderMainModel(db),
 		OrderItemModel:    model.NewOrderItemModel(db),
 		SeckillStockModel: model.NewSeckillStockModel(db),
 		SeckillActivity:   model.NewSeckillActivityModel(db),
 	}
+
+	// 注册消息队列消费者（全局仅一次）
+	redisQueue.Register(model.SeckillStock{}.TableName(), svcCtx.SeckillStockConsumer)
+	redisQueue.Run()
+
+	return svcCtx
 }
 
 func InitDB(c config.Config) *gorm.DB {
@@ -79,6 +86,38 @@ func InitRedis(c config.Config) *redis.Client {
 		panic(err)
 	}
 	return client
+}
+
+func (s *ServiceContext) SeckillStockConsumer(msg storage.Messager) error {
+	order := struct {
+		UserId     int64  `json:"user_id"`
+		OrderNo    string `json:"order_no"`
+		ActivityId int64  `json:"activity_id"`
+		ProductId  int64  `json:"product_id"`
+	}{}
+	rb, err := json.Marshal(msg.GetValues())
+	if err != nil {
+		return err
+	}
+
+	if err = json.Unmarshal(rb, &order); err != nil {
+		return err
+	}
+
+	// 乐观锁扣减库存
+	affected, err := s.SeckillStockModel.DecreaseStock(order.ActivityId)
+	if err != nil || affected == 0 {
+		// 扣减失败，更新订单为取消状态
+		logx.Errorf("数据库库存扣减失败，error: %v", err)
+		_ = s.OrderMainModel.UpdateStatus(order.OrderNo, 4)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	// 扣减成功，更新订单为待付款状态
+	logx.Infof("秒杀库存扣减成功，orderNo: %s", order.OrderNo)
+	return s.OrderMainModel.UpdateStatus(order.OrderNo, 0)
 }
 
 func InitRedisQueue(c config.Config) storage.AdapterQueue {

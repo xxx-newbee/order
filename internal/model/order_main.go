@@ -25,7 +25,9 @@ type (
 		FindById(id int64) (*OrderMain, error)
 		FindByOrderNo(orderNo string) (*OrderMain, error)
 		Update(data *OrderMain) error
-		UpdataStatus(orderNo string, status int8) error
+		UpdateStatus(orderNo string, status int8) error
+		FindByUserId(userId int64, page, pageSize int) ([]*OrderMain, int64, error)
+		FindExpiredSeckillOrders(beforeTime string, limit int) ([]*OrderMain, error)
 	}
 
 	defaultOrderMain struct {
@@ -74,7 +76,7 @@ func (m *defaultOrderMain) FindByOrderNo(orderNo string) (*OrderMain, error) {
 func (m *defaultOrderMain) Update(data *OrderMain) error {
 	return m.db.Table(m.table).Where("id = ?", data.ID).Updates(data).Error
 }
-func (m *defaultOrderMain) UpdataStatus(orderNo string, status int8) error {
+func (m *defaultOrderMain) UpdateStatus(orderNo string, status int8) error {
 	var data OrderMain
 	res := m.db.Table(m.table).Where("order_no = ?", orderNo).First(&data)
 	if res.Error != nil {
@@ -87,4 +89,26 @@ func (m *defaultOrderMain) UpdataStatus(orderNo string, status int8) error {
 	data.OrderStatus = status
 
 	return m.Update(&data)
+}
+
+func (m *defaultOrderMain) FindByUserId(userId int64, page, pageSize int) ([]*OrderMain, int64, error) {
+	var list []*OrderMain
+	var total int64
+	if err := m.db.Table(m.table).Where("user_id = ?", userId).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	offset := (page - 1) * pageSize
+	res := m.db.Table(m.table).Where("user_id = ?", userId).Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&list)
+	return list, total, res.Error
+}
+
+// 查找超时未支付的秒杀订单（status=5 秒杀中，超过指定时间未支付）
+func (m *defaultOrderMain) FindExpiredSeckillOrders(beforeTime string, limit int) ([]*OrderMain, error) {
+	var list []*OrderMain
+	res := m.db.Table(m.table).
+		Where("order_status = ? AND order_type = ? AND created_at < ?", 5, 1, beforeTime).
+		Order("created_at ASC").
+		Limit(limit).
+		Find(&list)
+	return list, res.Error
 }

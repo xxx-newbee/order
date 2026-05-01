@@ -12,9 +12,7 @@ RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go mod download
 COPY . .
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \ 
-    go build -ldflags="-s -w" -o /app/order-srv .
+RUN go build -ldflags="-s -w" -o /app/order-srv .
 
 FROM alpine:3.20
 

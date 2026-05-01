@@ -1,0 +1,21 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build and Release
+        uses: xxx-newbee/go-micro-release-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          binary_name: "order-srv"
+          project_path: "."
+          go_version: "1.25.5"

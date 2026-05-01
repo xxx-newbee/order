@@ -6,17 +6,12 @@ require (
 	github.com/bsm/redislock v0.9.4
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/spf13/cobra v1.10.2
-	github.com/xxx-newbee/storage v1.0.4
+	github.com/xxx-newbee/storage v1.0.9
 	github.com/zeromicro/go-zero v1.10.0
 	google.golang.org/grpc v1.79.1
 	google.golang.org/protobuf v1.36.11
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
-)
-
-// for dev
-replace (
-	github.com/xxx-newbee/storage v1.0.4 => ../storage
 )
 
 require (

@@ -111,6 +111,78 @@ message CancelTimeoutOrderResponse {
   string msg = 2;
 }
 
+// ---- 支付 ----
+message CreatePaymentRequest {
+  string order_no = 1;
+  string pay_type = 2;
+  string openid = 3;
+  string client_ip = 4;
+}
+
+message CreatePaymentResponse {
+  string prepay_id = 1;
+  string pay_info = 2;
+  bool success = 3;
+  string msg = 4;
+}
+
+message PaymentCallbackRequest {
+  string wechatpay_signature = 1;
+  string wechatpay_nonce = 2;
+  string wechatpay_timestamp = 3;
+  string wechatpay_serial = 4;
+  string body = 5;
+}
+
+message PaymentCallbackResponse {
+  string code = 1;
+  string message = 2;
+  string order_no = 3;
+  string transaction_id = 4;
+  int64 total_fee = 5;
+  string trade_state = 6;
+  bool success = 7;
+  string msg = 8;
+}
+
+message QueryPaymentRequest {
+  string order_no = 1;
+  string transaction_id = 2;
+}
+
+message QueryPaymentResponse {
+  string order_no = 1;
+  string transaction_id = 2;
+  string trade_state = 3;
+  int64 total_fee = 4;
+  string bank_type = 5;
+  string trade_type = 6;
+  bool success = 7;
+  string msg = 8;
+}
+
+message RefundRequest {
+  string order_no = 1;
+  int64 refund_amount = 2;
+  string refund_reason = 3;
+}
+
+message RefundResponse {
+  string refund_id = 1;
+  string refund_status = 2;
+  bool success = 3;
+  string msg = 4;
+}
+
+message CloseOrderRequest {
+  string order_no = 1;
+}
+
+message CloseOrderResponse {
+  bool success = 1;
+  string msg = 2;
+}
+
 service Order {
   rpc SeckillOrder(SeckillOrderRequest) returns(SeckillOrderResponse);
   rpc CreateSeckillActivity(CreateSeckillActivityRequest) returns(CreateSeckillActivityResponse);
@@ -119,4 +191,9 @@ service Order {
   rpc GetSeckillOrder(GetSeckillOrderRequest) returns(GetSeckillOrderResponse);
   rpc GetUserSeckillOrders(GetUserSeckillOrdersRequest) returns(GetUserSeckillOrdersResponse);
   rpc CancelTimeoutOrder(CancelTimeoutOrderRequest) returns(CancelTimeoutOrderResponse);
+  rpc CreatePayment(CreatePaymentRequest) returns(CreatePaymentResponse);
+  rpc ProcessPaymentCallback(PaymentCallbackRequest) returns(PaymentCallbackResponse);
+  rpc QueryPayment(QueryPaymentRequest) returns(QueryPaymentResponse);
+  rpc Refund(RefundRequest) returns(RefundResponse);
+  rpc CloseOrder(CloseOrderRequest) returns(CloseOrderResponse);
 }

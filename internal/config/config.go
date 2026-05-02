@@ -22,6 +22,16 @@ type Config struct {
 		Redis  RedisQueueConf
 		Memory MemoryQueueConf
 	}
+	WxPay WxPayConfig
+}
+
+type WxPayConfig struct {
+	MchID          string
+	AppID          string
+	MchAPIv3Key    string
+	PrivateKeyPath string
+	CertSerialNo   string
+	NotifyURL      string
 }
 
 type RedisConf struct {

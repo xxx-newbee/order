@@ -26,6 +26,7 @@ type (
 		FindByOrderNo(orderNo string) (*OrderMain, error)
 		Update(data *OrderMain) error
 		UpdateStatus(orderNo string, status int8) error
+		UpdatePayStatus(orderNo string, payTime time.Time) error
 		FindByUserId(userId int64, page, pageSize int) ([]*OrderMain, int64, error)
 		FindExpiredSeckillOrders(beforeTime string, limit int) ([]*OrderMain, error)
 	}
@@ -89,6 +90,14 @@ func (m *defaultOrderMain) UpdateStatus(orderNo string, status int8) error {
 	data.OrderStatus = status
 
 	return m.Update(&data)
+}
+
+func (m *defaultOrderMain) UpdatePayStatus(orderNo string, payTime time.Time) error {
+	return m.db.Table(m.table).Where("order_no = ? AND order_status = ?", orderNo, 0).
+		Updates(map[string]interface{}{
+			"order_status": 1,
+			"pay_time":     payTime,
+		}).Error
 }
 
 func (m *defaultOrderMain) FindByUserId(userId int64, page, pageSize int) ([]*OrderMain, int64, error) {

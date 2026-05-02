@@ -19,13 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_SeckillOrder_FullMethodName          = "/order.Order/SeckillOrder"
-	Order_CreateSeckillActivity_FullMethodName = "/order.Order/CreateSeckillActivity"
-	Order_GetSeckillActivity_FullMethodName    = "/order.Order/GetSeckillActivity"
-	Order_LoadSeckillStock_FullMethodName      = "/order.Order/LoadSeckillStock"
-	Order_GetSeckillOrder_FullMethodName       = "/order.Order/GetSeckillOrder"
-	Order_GetUserSeckillOrders_FullMethodName  = "/order.Order/GetUserSeckillOrders"
-	Order_CancelTimeoutOrder_FullMethodName    = "/order.Order/CancelTimeoutOrder"
+	Order_SeckillOrder_FullMethodName           = "/order.Order/SeckillOrder"
+	Order_CreateSeckillActivity_FullMethodName  = "/order.Order/CreateSeckillActivity"
+	Order_GetSeckillActivity_FullMethodName     = "/order.Order/GetSeckillActivity"
+	Order_LoadSeckillStock_FullMethodName       = "/order.Order/LoadSeckillStock"
+	Order_GetSeckillOrder_FullMethodName        = "/order.Order/GetSeckillOrder"
+	Order_GetUserSeckillOrders_FullMethodName   = "/order.Order/GetUserSeckillOrders"
+	Order_CancelTimeoutOrder_FullMethodName     = "/order.Order/CancelTimeoutOrder"
+	Order_CreatePayment_FullMethodName          = "/order.Order/CreatePayment"
+	Order_ProcessPaymentCallback_FullMethodName = "/order.Order/ProcessPaymentCallback"
+	Order_QueryPayment_FullMethodName           = "/order.Order/QueryPayment"
+	Order_Refund_FullMethodName                 = "/order.Order/Refund"
+	Order_CloseOrder_FullMethodName             = "/order.Order/CloseOrder"
 )
 
 // OrderClient is the client API for Order service.
@@ -39,6 +44,11 @@ type OrderClient interface {
 	GetSeckillOrder(ctx context.Context, in *GetSeckillOrderRequest, opts ...grpc.CallOption) (*GetSeckillOrderResponse, error)
 	GetUserSeckillOrders(ctx context.Context, in *GetUserSeckillOrdersRequest, opts ...grpc.CallOption) (*GetUserSeckillOrdersResponse, error)
 	CancelTimeoutOrder(ctx context.Context, in *CancelTimeoutOrderRequest, opts ...grpc.CallOption) (*CancelTimeoutOrderResponse, error)
+	CreatePayment(ctx context.Context, in *CreatePaymentRequest, opts ...grpc.CallOption) (*CreatePaymentResponse, error)
+	ProcessPaymentCallback(ctx context.Context, in *PaymentCallbackRequest, opts ...grpc.CallOption) (*PaymentCallbackResponse, error)
+	QueryPayment(ctx context.Context, in *QueryPaymentRequest, opts ...grpc.CallOption) (*QueryPaymentResponse, error)
+	Refund(ctx context.Context, in *RefundRequest, opts ...grpc.CallOption) (*RefundResponse, error)
+	CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderResponse, error)
 }
 
 type orderClient struct {
@@ -119,6 +129,56 @@ func (c *orderClient) CancelTimeoutOrder(ctx context.Context, in *CancelTimeoutO
 	return out, nil
 }
 
+func (c *orderClient) CreatePayment(ctx context.Context, in *CreatePaymentRequest, opts ...grpc.CallOption) (*CreatePaymentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreatePaymentResponse)
+	err := c.cc.Invoke(ctx, Order_CreatePayment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) ProcessPaymentCallback(ctx context.Context, in *PaymentCallbackRequest, opts ...grpc.CallOption) (*PaymentCallbackResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PaymentCallbackResponse)
+	err := c.cc.Invoke(ctx, Order_ProcessPaymentCallback_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) QueryPayment(ctx context.Context, in *QueryPaymentRequest, opts ...grpc.CallOption) (*QueryPaymentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(QueryPaymentResponse)
+	err := c.cc.Invoke(ctx, Order_QueryPayment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) Refund(ctx context.Context, in *RefundRequest, opts ...grpc.CallOption) (*RefundResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefundResponse)
+	err := c.cc.Invoke(ctx, Order_Refund_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CloseOrder(ctx context.Context, in *CloseOrderRequest, opts ...grpc.CallOption) (*CloseOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseOrderResponse)
+	err := c.cc.Invoke(ctx, Order_CloseOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -130,6 +190,11 @@ type OrderServer interface {
 	GetSeckillOrder(context.Context, *GetSeckillOrderRequest) (*GetSeckillOrderResponse, error)
 	GetUserSeckillOrders(context.Context, *GetUserSeckillOrdersRequest) (*GetUserSeckillOrdersResponse, error)
 	CancelTimeoutOrder(context.Context, *CancelTimeoutOrderRequest) (*CancelTimeoutOrderResponse, error)
+	CreatePayment(context.Context, *CreatePaymentRequest) (*CreatePaymentResponse, error)
+	ProcessPaymentCallback(context.Context, *PaymentCallbackRequest) (*PaymentCallbackResponse, error)
+	QueryPayment(context.Context, *QueryPaymentRequest) (*QueryPaymentResponse, error)
+	Refund(context.Context, *RefundRequest) (*RefundResponse, error)
+	CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderResponse, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -160,6 +225,21 @@ func (UnimplementedOrderServer) GetUserSeckillOrders(context.Context, *GetUserSe
 }
 func (UnimplementedOrderServer) CancelTimeoutOrder(context.Context, *CancelTimeoutOrderRequest) (*CancelTimeoutOrderResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelTimeoutOrder not implemented")
+}
+func (UnimplementedOrderServer) CreatePayment(context.Context, *CreatePaymentRequest) (*CreatePaymentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreatePayment not implemented")
+}
+func (UnimplementedOrderServer) ProcessPaymentCallback(context.Context, *PaymentCallbackRequest) (*PaymentCallbackResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ProcessPaymentCallback not implemented")
+}
+func (UnimplementedOrderServer) QueryPayment(context.Context, *QueryPaymentRequest) (*QueryPaymentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method QueryPayment not implemented")
+}
+func (UnimplementedOrderServer) Refund(context.Context, *RefundRequest) (*RefundResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Refund not implemented")
+}
+func (UnimplementedOrderServer) CloseOrder(context.Context, *CloseOrderRequest) (*CloseOrderResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CloseOrder not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -308,6 +388,96 @@ func _Order_CancelTimeoutOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CreatePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePaymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreatePayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreatePayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreatePayment(ctx, req.(*CreatePaymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_ProcessPaymentCallback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PaymentCallbackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).ProcessPaymentCallback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_ProcessPaymentCallback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).ProcessPaymentCallback(ctx, req.(*PaymentCallbackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_QueryPayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPaymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).QueryPayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_QueryPayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).QueryPayment(ctx, req.(*QueryPaymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_Refund_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).Refund(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_Refund_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).Refund(ctx, req.(*RefundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_CloseOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CloseOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CloseOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CloseOrder(ctx, req.(*CloseOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -342,6 +512,26 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelTimeoutOrder",
 			Handler:    _Order_CancelTimeoutOrder_Handler,
+		},
+		{
+			MethodName: "CreatePayment",
+			Handler:    _Order_CreatePayment_Handler,
+		},
+		{
+			MethodName: "ProcessPaymentCallback",
+			Handler:    _Order_ProcessPaymentCallback_Handler,
+		},
+		{
+			MethodName: "QueryPayment",
+			Handler:    _Order_QueryPayment_Handler,
+		},
+		{
+			MethodName: "Refund",
+			Handler:    _Order_Refund_Handler,
+		},
+		{
+			MethodName: "CloseOrder",
+			Handler:    _Order_CloseOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

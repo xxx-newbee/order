@@ -35,3 +35,11 @@ Queue:
     DB: 2
     Prefix: "order"
     MaxRetry: 3
+
+WxPay:
+  MchID: ""
+  AppID: ""
+  MchAPIv3Key: ""
+  PrivateKeyPath: "config/cert/apiclient_key.pem"
+  CertSerialNo: ""
+  NotifyURL: "https://your-domain.com/v1/callbacks/wxpay"

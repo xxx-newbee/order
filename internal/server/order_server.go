@@ -53,3 +53,28 @@ func (s *OrderServer) CancelTimeoutOrder(ctx context.Context, in *order.CancelTi
 	l := logic.NewCancelTimeoutOrderLogic(ctx, s.svcCtx)
 	return l.CancelTimeoutOrder(in)
 }
+
+func (s *OrderServer) CreatePayment(ctx context.Context, in *order.CreatePaymentRequest) (*order.CreatePaymentResponse, error) {
+	l := logic.NewCreatePaymentLogic(ctx, s.svcCtx)
+	return l.CreatePayment(in)
+}
+
+func (s *OrderServer) ProcessPaymentCallback(ctx context.Context, in *order.PaymentCallbackRequest) (*order.PaymentCallbackResponse, error) {
+	l := logic.NewProcessPaymentCallbackLogic(ctx, s.svcCtx)
+	return l.ProcessPaymentCallback(in)
+}
+
+func (s *OrderServer) QueryPayment(ctx context.Context, in *order.QueryPaymentRequest) (*order.QueryPaymentResponse, error) {
+	l := logic.NewQueryPaymentLogic(ctx, s.svcCtx)
+	return l.QueryPayment(in)
+}
+
+func (s *OrderServer) Refund(ctx context.Context, in *order.RefundRequest) (*order.RefundResponse, error) {
+	l := logic.NewRefundLogic(ctx, s.svcCtx)
+	return l.Refund(in)
+}
+
+func (s *OrderServer) CloseOrder(ctx context.Context, in *order.CloseOrderRequest) (*order.CloseOrderResponse, error) {
+	l := logic.NewClosePaymentLogic(ctx, s.svcCtx)
+	return l.CloseOrder(in)
+}

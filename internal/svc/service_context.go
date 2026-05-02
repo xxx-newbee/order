@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/xxx-newbee/order/internal/config"
 	"github.com/xxx-newbee/order/internal/model"
+	"github.com/xxx-newbee/order/internal/wxpay"
 	"github.com/xxx-newbee/storage"
 	"github.com/xxx-newbee/storage/cache"
 	"github.com/xxx-newbee/storage/locker"
@@ -18,15 +19,17 @@ import (
 )
 
 type ServiceContext struct {
-	Config            config.Config
-	Cache             storage.AdapterCache
-	Locker            storage.AdapterLocker
-	MemoryQueue       storage.AdapterQueue
-	RedisQueue        storage.AdapterQueue
-	OrderMainModel    model.OrderMainModel
-	OrderItemModel    model.OrderItemModel
-	SeckillStockModel model.SeckillStockModel
-	SeckillActivity   model.SeckillActivityModel
+	Config             config.Config
+	Cache              storage.AdapterCache
+	Locker             storage.AdapterLocker
+	MemoryQueue        storage.AdapterQueue
+	RedisQueue         storage.AdapterQueue
+	OrderMainModel     model.OrderMainModel
+	OrderItemModel     model.OrderItemModel
+	SeckillStockModel  model.SeckillStockModel
+	SeckillActivity    model.SeckillActivityModel
+	PaymentRecordModel model.PaymentRecordModel
+	WxPayClient        *wxpay.Client
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -34,16 +37,30 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	redis := InitRedis(c)
 	redisQueue := InitRedisQueue(c)
 
+	wxpayClient, err := wxpay.NewClient(wxpay.Config{
+		MchID:          c.WxPay.MchID,
+		AppID:          c.WxPay.AppID,
+		MchAPIv3Key:    c.WxPay.MchAPIv3Key,
+		PrivateKeyPath: c.WxPay.PrivateKeyPath,
+		CertSerialNo:   c.WxPay.CertSerialNo,
+		NotifyURL:      c.WxPay.NotifyURL,
+	})
+	if err != nil {
+		panic("failed to init wxpay client: " + err.Error())
+	}
+
 	svcCtx := &ServiceContext{
-		Config:            c,
-		Cache:             cache.NewRedis(redis, nil),
-		Locker:            locker.NewRedisLocker(redis),
-		MemoryQueue:       queue.NewMemoryQueue(c.Queue.Memory.PoolSize),
-		RedisQueue:        redisQueue,
-		OrderMainModel:    model.NewOrderMainModel(db),
-		OrderItemModel:    model.NewOrderItemModel(db),
-		SeckillStockModel: model.NewSeckillStockModel(db),
-		SeckillActivity:   model.NewSeckillActivityModel(db),
+		Config:             c,
+		Cache:              cache.NewRedis(redis, nil),
+		Locker:             locker.NewRedisLocker(redis),
+		MemoryQueue:        queue.NewMemoryQueue(c.Queue.Memory.PoolSize),
+		RedisQueue:         redisQueue,
+		OrderMainModel:     model.NewOrderMainModel(db),
+		OrderItemModel:     model.NewOrderItemModel(db),
+		SeckillStockModel:  model.NewSeckillStockModel(db),
+		SeckillActivity:    model.NewSeckillActivityModel(db),
+		PaymentRecordModel: model.NewPaymentRecordModel(db),
+		WxPayClient:        wxpayClient,
 	}
 
 	// 注册消息队列消费者（全局仅一次）

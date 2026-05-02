@@ -18,6 +18,7 @@ type (
 	}
 
 	SeckillStockModel interface {
+		Insert(data *SeckillStock) (int64, error)
 		FindByActivityId(activityId int64) (*SeckillStock, error)
 		DecreaseStock(activityId int64) (int64, error)
 		IncreaseStock(activityId int64) (int64, error)
@@ -39,12 +40,19 @@ func NewSeckillStockModel(db *gorm.DB) SeckillStockModel {
 	}
 }
 
+func (m *defaultSeckillStock) Insert(data *SeckillStock) (int64, error) {
+	if err := m.db.Table(m.table).Create(data).Error; err != nil {
+		return 0, err
+	}
+	return data.Id, nil
+}
+
 func (m *defaultSeckillStock) FindByActivityId(activityId int64) (*SeckillStock, error) {
 	var data SeckillStock
 	res := m.db.Table(m.table).Where("activity_id = ?", activityId).First(&data)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return &SeckillStock{}, nil
+			return nil, nil
 		}
 		return nil, res.Error
 	}

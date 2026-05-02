@@ -60,7 +60,7 @@ func (l *CreateSeckillActivityLogic) CreateSeckillActivity(in *order.CreateSecki
 		Version:      0,
 		UpdateTime:   time.Now(),
 	}
-	if err := l.svcCtx.SeckillStockModel.Update(stock); err != nil {
+	if _, err := l.svcCtx.SeckillStockModel.Insert(stock); err != nil {
 		l.Logger.Errorf("初始化库存记录失败: %v", err)
 	}
 
